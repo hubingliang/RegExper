@@ -10,14 +10,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { watch } from "fs";
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+import { watch } from 'fs';
 
 @Component
 export default class Start extends Vue {
     private mounted() {
         setTimeout(() => {
-            this.$router.push('home')
+            this.$router.push('home');
         }, 2000);
     }
 }
@@ -28,8 +28,8 @@ export default class Start extends Vue {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     background: #ff8008; /* fallback for old browsers */
     background: -webkit-linear-gradient(
         to right,
@@ -39,12 +39,12 @@ export default class Start extends Vue {
     background: linear-gradient(to right, #ffc837, #ff8008);
     /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     .logo {
-        font-size: 50px;
+        font-size: 3.125rem;
         font-weight: bold;
         color: white;
     }
     .icon {
-        font-size: 1.5em;
+        font-size: 1.5rem;
     }
 }
 </style>
