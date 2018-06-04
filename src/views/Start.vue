@@ -10,14 +10,22 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
-import { watch } from 'fs';
+import {
+    Component,
+    Emit,
+    Inject,
+    Model,
+    Prop,
+    Provide,
+    Vue,
+    Watch
+} from "vue-property-decorator";
 
 @Component
 export default class Start extends Vue {
     private mounted() {
         setTimeout(() => {
-            this.$router.push('challenge');
+            this.$router.push("challenge");
         }, 2000);
     }
 }

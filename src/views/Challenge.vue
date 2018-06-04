@@ -1,19 +1,42 @@
 <template>
     <div class='challenge'>
-        <article v-html="article">
-        </article>
-        <section class="want">
-            {{ want }}
-        </section>
-        <section class="input">
-            <div class="wrapper">
-                <span>/</span>
-                <input v-model.trim='input' type='text' placeholder='regexp' id="entry" :style="{ width: inputWidth + 'px',fontSize: fontSize + 'vw'}" @input="changeInputWidth();regexp()">
-                <span>/</span>
-                <input v-model.trim='flags' type="text" placeholder='flags' id="flags" :style="{ width: flagsWidth + 'px',fontSize: fontSize + 'vw'}" @input="changeFlagsWidth();regexp()">
+        <aside class="aside">
+            <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-zhengzeshi"></use>
+            </svg>
+        </aside>
+
+        <section class="problem">
+            <div class="logo">
+                <span class="orange">2018</span> RegExper Challenge</div>
+            <div class="level">
+                1
             </div>
+            <section class="want">
+                <div class="question">I need :</div>
+                <div class="detail">{{ want }}</div>
+            </section>
+            <section class="flagsBox">
+                <div class="description">Flags :</div>
+                <div class="flags" v-for="flag in flags" v-bind:key="flag">
+                    {{ flag }}
+                </div>
+            </section>
         </section>
 
+        <article>
+            <div class="article" v-html="article">
+
+            </div>
+            <section class="input">
+                <div class="wrapper">
+                    <span>/</span>
+                    <input v-model.trim='input' type='text' placeholder='regexp' id="entry" :style="{ width: inputWidth + 'px',fontSize: fontSize + 'px'}" @input="regexp()">
+                    <span>/</span>
+                    <input v-model.trim='inputFlags' type="text" placeholder='flags' id="flags" :style="{ width: flagsWidth + 'px',fontSize: fontSize + 'px'}" @input="regexp()">
+                </div>
+            </section>
+        </article>
     </div>
 </template>
 
@@ -28,21 +51,19 @@ import {
     Vue,
     Watch
 } from "vue-property-decorator";
-import { constants } from "http2";
-import { setTimeout, clearTimeout } from "timers";
-import { emit } from "cluster";
 
 @Component
 export default class Checkpoint extends Vue {
     @Provide() private initArticle: string = "hellow world";
-    @Provide() private article: string = "hellow world";
-    @Provide() private want: string = "ell";
-    @Provide() private input: string = "";
-    @Provide() private flags: string = "";
-    @Provide() private inputWidth: number = 100;
-    @Provide() private flagsWidth: number = 75;
-    @Provide() private fontSize: number = 6.66;
-    @Provide() private timeout: any = null;
+    private article: string = "hellow world";
+    private want: string = "world";
+    private input: string = "";
+    private inputFlags: string = "";
+    private inputWidth: number = 100;
+    private flagsWidth: number = 75;
+    private fontSize: number = 20;
+    private timeout: any = null;
+    private flags: string[] = ["g", "i", "m", "u", "y"];
     @Emit()
     private regexp() {
         if (this.input === "") {
@@ -50,19 +71,18 @@ export default class Checkpoint extends Vue {
             this.article = this.initArticle;
             return;
         }
-        this.te();
+        this.debounce();
     }
-    @Emit()
-    private te(interval: number = 500) {
+    private debounce(interval: number = 500) {
         this.article = this.initArticle; //reset article 的值
         clearTimeout(this.timeout); //清楚定时器
         this.timeout = setTimeout(() => {
             // 设置新的定时器
-            const regexp: RegExp = new RegExp(this.input, this.flags);
+            const regexp: RegExp = new RegExp(this.input, this.inputFlags);
             const matches: any = this.article.match(regexp);
             let afterArticle: string = "";
             for (const match of matches) {
-                const reg = new RegExp(match, this.flags);
+                const reg = new RegExp(match, this.inputFlags);
                 afterArticle = this.article.replace(
                     reg,
                     `<span style="color: #ff8008;">${match}</span>`
@@ -95,67 +115,145 @@ export default class Checkpoint extends Vue {
         }
     }
     private mounted() {
-        this.changeInputWidth();
+        // this.changeInputWidth();
     }
 }
 </script>
 
 <style lang='less' scoped>
-.highlight {
-    color: red;
-}
 .flex {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 .challenge {
-    height: 100vh;
-    width: 100vw;
-    padding: 40px;
+    height: 90vh;
+    width: 65vw;
+    grid-area: challenge;
+    background: white;
     display: grid;
-    grid-template-columns: auto;
-    grid-template-rows: auto 200px auto;
-    grid-template-areas: "article" "want" "input";
-    grid-row-gap: 40px;
+    grid-template-columns: 4vw 20vw 41vw;
+    grid-template-rows: auto;
+    grid-template-areas: "aside problem article";
+    overflow: hidden;
     article {
         grid-area: article;
-        background: white;
-        border-radius: 10px;
-        font-size: 50px;
-        .flex;
-    }
-    .want {
-        grid-area: want;
         background: #333;
-        border-radius: 10px;
+        font-size: 50px;
         color: white;
-        font-size: 50px;
-        .flex;
-    }
-    .input {
-        grid-area: input;
-        font-size: 50px;
-        .wrapper {
-            border-bottom: 1px solid #333;
-            #entry {
-                border: none;
-                outline: none;
-                background-color: rgba(0, 0, 0, 0);
-                padding: 10px;
-                text-align: center;
-            }
-            #flags {
-                font-size: 50px;
-                border: none;
-                outline: none;
-                background-color: rgba(0, 0, 0, 0);
-                padding: 10px;
-                text-align: center;
-                width: 200px;
-            }
+        display: grid;
+        grid-template-columns: auto;
+        grid-template-rows: 60vh 20vh 10vh;
+        grid-template-areas: "article" "input" "footer";
+        .article {
+            grid-area: article;
+            .flex;
         }
-        .flex;
+        .input {
+            grid-area: input;
+            font-size: 20px;
+            color: white;
+            .wrapper {
+                border-bottom: 1px solid #333;
+                #entry {
+                    border: none;
+                    outline: none;
+                    background-color: rgba(0, 0, 0, 0);
+                    text-align: center;
+                }
+                #flags {
+                    font-size: 20px;
+                    border: none;
+                    outline: none;
+                    background-color: rgba(0, 0, 0, 0);
+                    padding: 10px;
+                    text-align: center;
+                }
+            }
+            .flex;
+        }
+    }
+    aside {
+        grid-area: aside;
+        display: flex;
+        justify-content: center;
+        padding: 10px 0 0;
+        border-right: 1px solid #333;
+        svg {
+            font-size: 45px;
+            fill: #ff8008;
+        }
+    }
+    .problem {
+        grid-area: problem;
+        display: grid;
+        grid-template-columns: auto;
+        grid-template-rows: 6vh 24vh 28vh 22vh 10vh;
+        grid-template-areas: "logo" " level " "want" "flags" "s";
+        .logo {
+            .orange {
+                color: #ff8008;
+                padding-right: 5px;
+            }
+            grid-area: logo;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            padding-left: 40px;
+            font-weight: bold;
+            border-bottom: 1px solid #333;
+        }
+        .level {
+            grid-area: level;
+            font-size: 60px;
+            color: #ff8008;
+            border-bottom: 1px solid #333;
+            .flex;
+        }
+        .want {
+            grid-area: want;
+            flex-wrap: wrap;
+            flex-direction: column;
+            border-bottom: 1px solid #333;
+            position: relative;
+            .question {
+                position: absolute;
+                left: 10px;
+                top: 10px;
+                color: #333;
+                width: 18vw;
+                font-weight: bold;
+            }
+            .detail {
+                color: #ff8008;
+                font-size: 30px;
+                width: 18vw;
+                height: 13vh;
+                background: #333;
+                box-shadow: -7px 25px 48px -15px rgba(0, 0, 0, 0.75);
+                .flex;
+            }
+            .flex;
+        }
+        .flagsBox {
+            position: relative;
+            border-bottom: 1px solid #333;
+            .flags {
+                width: 40px;
+                height: 40px;
+                background: #333;
+                color: white;
+                margin: 0 10px;
+                .flex;
+            }
+            .description {
+                position: absolute;
+                font-weight: bold;
+                left: 10px;
+                top: 10px;
+            }
+            .flex;
+        }
     }
 }
 </style>
