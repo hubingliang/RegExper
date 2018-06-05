@@ -18,8 +18,8 @@
             </section>
             <section class="flagsBox">
                 <div class="description">Flags :</div>
-                <div class="flags" v-for="flag in flags" v-bind:key="flag">
-                    {{ flag }}
+                <div class="flags" v-for="flag in flags" v-bind:key="flag.flag" @click="changeFlags(flag);regexp()" :class="{ active: flag.status }">
+                    {{ flag.flag }}
                 </div>
             </section>
         </section>
@@ -31,9 +31,9 @@
             <section class="input">
                 <div class="wrapper">
                     <span>/</span>
-                    <input v-model.trim='input' type='text' placeholder='regexp' id="entry" :style="{ width: inputWidth + 'px',fontSize: fontSize + 'px'}" @input="regexp()">
+                    <input v-model.trim='input' type='text' placeholder='regexp' id="entry" :style="{ width: inputWidth + 'px',fontSize: fontSize + 'px'}" @input="changeInputWidth();regexp()">
                     <span>/</span>
-                    <input v-model.trim='inputFlags' type="text" placeholder='flags' id="flags" :style="{ width: flagsWidth + 'px',fontSize: fontSize + 'px'}" @input="regexp()">
+                    <input type="text" id="flags" :value="inputFlags" placeholder="flags" readonly="readonly">
                 </div>
             </section>
         </article>
@@ -54,8 +54,8 @@ import {
 
 @Component
 export default class Checkpoint extends Vue {
-    @Provide() private initArticle: string = "hellow world";
-    private article: string = "hellow world";
+    @Provide() private initArticle: string = "19.22";
+    private article: string = "19.22";
     private want: string = "world";
     private input: string = "";
     private inputFlags: string = "";
@@ -63,7 +63,28 @@ export default class Checkpoint extends Vue {
     private flagsWidth: number = 75;
     private fontSize: number = 20;
     private timeout: any = null;
-    private flags: string[] = ["g", "i", "m", "u", "y"];
+    private flags: object[] = [
+        {
+            flag: "g",
+            status: false
+        },
+        {
+            flag: "i",
+            status: false
+        },
+        {
+            flag: "m",
+            status: false
+        },
+        {
+            flag: "u",
+            status: false
+        },
+        {
+            flag: "y",
+            status: false
+        }
+    ];
     @Emit()
     private regexp() {
         if (this.input === "") {
@@ -74,12 +95,19 @@ export default class Checkpoint extends Vue {
         this.debounce();
     }
     private debounce(interval: number = 500) {
-        this.article = this.initArticle; //reset article 的值
-        clearTimeout(this.timeout); //清楚定时器
+        this.article = this.initArticle; // reset article 的值
+        clearTimeout(this.timeout); // 清楚定时器
         this.timeout = setTimeout(() => {
             // 设置新的定时器
+            if (this.inputFlags === "flags") {
+                this.inputFlags = "";
+            }
             const regexp: RegExp = new RegExp(this.input, this.inputFlags);
+            console.log("​Checkpoint -> this.timeout -> regexp", regexp);
+
             const matches: any = this.article.match(regexp);
+            console.log("​Checkpoint -> this.timeout -> matches", matches);
+
             let afterArticle: string = "";
             for (const match of matches) {
                 const reg = new RegExp(match, this.inputFlags);
@@ -93,16 +121,11 @@ export default class Checkpoint extends Vue {
     }
     private changeInputWidth() {
         const inputHtml: any = document.getElementById("entry");
-        this.inputWidth = inputHtml.value.length * 15;
-
-        if (this.inputWidth < 100) {
-            this.inputWidth = 100;
-            this.fontSize = 6.66;
-        } else if (this.inputWidth < 280) {
-            this.fontSize = 6.66;
+        let width: number = inputHtml.value.length * 15;
+        if (width > 120) {
+            this.inputWidth = width;
         } else {
-            this.fontSize = 4.5;
-            this.inputWidth = 280;
+            this.inputWidth = 120;
         }
     }
     private changeFlagsWidth() {
@@ -114,13 +137,26 @@ export default class Checkpoint extends Vue {
             this.flagsWidth = 100;
         }
     }
+    private changeFlags(flagObj: flagObj) {
+        interface flagObj {
+            flag: string;
+            status: boolean;
+        }
+        if (this.inputFlags.includes(flagObj.flag)) {
+            flagObj.status = false;
+            this.inputFlags = this.inputFlags.replace(flagObj.flag, "");
+        } else {
+            flagObj.status = true;
+            this.inputFlags = `${this.inputFlags}${flagObj.flag}`;
+        }
+    }
     private mounted() {
         // this.changeInputWidth();
     }
 }
 </script>
 
-<style lang='less' scoped>
+<style lang='less'>
 .flex {
     display: flex;
     justify-content: center;
@@ -152,23 +188,28 @@ export default class Checkpoint extends Vue {
         .input {
             grid-area: input;
             font-size: 20px;
-            color: white;
             .wrapper {
-                border-bottom: 1px solid #333;
+                border-bottom: 1px solid #ff8008;
+                color: #ff8008;
+                flex-wrap: wrap;
                 #entry {
+                    color: white;
                     border: none;
                     outline: none;
                     background-color: rgba(0, 0, 0, 0);
                     text-align: center;
                 }
                 #flags {
+                    color: white;
                     font-size: 20px;
                     border: none;
                     outline: none;
                     background-color: rgba(0, 0, 0, 0);
                     padding: 10px;
                     text-align: center;
+                    width: 100px;
                 }
+                .flex;
             }
             .flex;
         }
@@ -245,6 +286,9 @@ export default class Checkpoint extends Vue {
                 color: white;
                 margin: 0 10px;
                 .flex;
+            }
+            .active {
+                color: #ff8008;
             }
             .description {
                 position: absolute;
