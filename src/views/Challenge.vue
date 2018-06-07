@@ -18,8 +18,11 @@
             </section>
             <section class="flagsBox">
                 <div class="description">Flags :</div>
-                <div class="flags" v-for="flag in flags" v-bind:key="flag.flag" @click="changeFlags(flag);regexp()" :class="{ active: flag.status }">
+                <div class="flags" v-for="flag in flags" @mouseenter="flagHover(flag)" @mouseleave="flagHover(flag)" v-bind:key="flag.flag" @click="changeFlags(flag);regexp()" :class="{ active: flag.status }">
                     {{ flag.flag }}
+                </div>
+                <div class="detail">
+                    {{flagDetail}}
                 </div>
             </section>
         </section>
@@ -51,11 +54,12 @@ import {
     Vue,
     Watch
 } from "vue-property-decorator";
+import { setTimeout } from "timers";
 
 @Component
 export default class Checkpoint extends Vue {
-    @Provide() private initArticle: string = "19.22";
-    private article: string = "19.22";
+    @Provide() private initArticle: string = "hellow world";
+    private article: string = "hellow world";
     private want: string = "world";
     private input: string = "";
     private inputFlags: string = "";
@@ -66,25 +70,34 @@ export default class Checkpoint extends Vue {
     private flags: object[] = [
         {
             flag: "g",
-            status: false
+            status: false,
+            detail: "global"
         },
         {
             flag: "i",
-            status: false
+            status: false,
+            detail: "case insensitive"
         },
         {
             flag: "m",
-            status: false
+            status: false,
+            detail: "multiline"
         },
         {
             flag: "u",
-            status: false
+            status: false,
+            detail: "unicode"
         },
         {
             flag: "y",
-            status: false
+            status: false,
+            detail: "sticky"
         }
     ];
+    private flagDetail: string = "";
+    private questionData: object[] = [];
+    private currentQuestion: object = {};
+    private test: string = '';
     @Emit()
     private regexp() {
         if (this.input === "") {
@@ -150,8 +163,30 @@ export default class Checkpoint extends Vue {
             this.inputFlags = `${this.inputFlags}${flagObj.flag}`;
         }
     }
-    private mounted() {
-        // this.changeInputWidth();
+    private flagHover(flagObj: flagObj) {
+        interface flagObj {
+            flag: string;
+            status: boolean;
+            detail: string;
+        }
+        if (this.flagDetail === "") {
+            this.flagDetail = flagObj.detail;
+        } else {
+            this.flagDetail = "";
+        }
+    }
+    private initQuestionData() {
+        setTimeout(() => {
+            this.questionData = this.$store.state.questionData;
+            this.currentQuestion = this.$store.state.questionData[0];
+            this.article = this.$store.state.questionData[0].article
+            this.initArticle = this.$store.state.questionData[0].article;
+            this.want = this.$store.state.questionData[0].want;
+            this.test = this.$store.state.questionData[0].test
+        }, 0);
+    }
+    mounted() {
+        this.initQuestionData();
     }
 }
 </script>
@@ -183,6 +218,8 @@ export default class Checkpoint extends Vue {
         grid-template-areas: "article" "input" "footer";
         .article {
             grid-area: article;
+            width: 100%;
+            text-align: center;
             .flex;
         }
         .input {
@@ -285,6 +322,7 @@ export default class Checkpoint extends Vue {
                 background: #333;
                 color: white;
                 margin: 0 10px;
+                flex-wrap: wrap;
                 .flex;
             }
             .active {
@@ -295,6 +333,13 @@ export default class Checkpoint extends Vue {
                 font-weight: bold;
                 left: 10px;
                 top: 10px;
+            }
+            .detail {
+                position: absolute;
+                bottom: 20px;
+                font-size: 20px;
+                color: #ff8008;
+                .flex;
             }
             .flex;
         }

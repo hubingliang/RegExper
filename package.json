@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "cssnano": "^3.10.0",
+    "leancloud-storage": "^3.7.2",
     "postcss-aspect-ratio-mini": "0.0.2",
     "postcss-cssnext": "^3.1.0",
     "postcss-px-to-viewport": "0.0.3",
