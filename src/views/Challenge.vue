@@ -25,10 +25,16 @@
                     {{flagDetail}}
                 </div>
             </section>
+            <section class="test">
+                <svg class="icon animated bounceIn" aria-hidden="true" v-if="pass">
+                    <use xlink:href="#icon-duihao"></use>
+                </svg>
+                <button @click="testCode()" v-else>Test Code</button>
+            </section>
         </section>
 
         <article>
-            <div class="article" v-html="article">
+            <div class="article" v-html="article" id="article">
 
             </div>
             <section class="input">
@@ -58,9 +64,9 @@ import { setTimeout } from "timers";
 
 @Component
 export default class Checkpoint extends Vue {
-    @Provide() private initArticle: string = "hellow world";
-    private article: string = "hellow world";
-    private want: string = "world";
+    @Provide() private initArticle: string = "";
+    private article: string = "";
+    private want: string = "";
     private input: string = "";
     private inputFlags: string = "";
     private inputWidth: number = 100;
@@ -97,7 +103,9 @@ export default class Checkpoint extends Vue {
     private flagDetail: string = "";
     private questionData: object[] = [];
     private currentQuestion: object = {};
-    private test: string = '';
+    private test: string = "";
+    private pass: boolean = false;
+    private questionIndex: number = 0;
     @Emit()
     private regexp() {
         if (this.input === "") {
@@ -126,7 +134,7 @@ export default class Checkpoint extends Vue {
                 const reg = new RegExp(match, this.inputFlags);
                 afterArticle = this.article.replace(
                     reg,
-                    `<span style="color: #ff8008;">${match}</span>`
+                    `<span style="color: #ff8008;display: inline">${match}</span>`
                 );
             }
             this.article = afterArticle;
@@ -175,18 +183,43 @@ export default class Checkpoint extends Vue {
             this.flagDetail = "";
         }
     }
-    private initQuestionData() {
+    private initQuestionData(questionIndex: number) {
         setTimeout(() => {
             this.questionData = this.$store.state.questionData;
-            this.currentQuestion = this.$store.state.questionData[0];
-            this.article = this.$store.state.questionData[0].article
-            this.initArticle = this.$store.state.questionData[0].article;
-            this.want = this.$store.state.questionData[0].want;
-            this.test = this.$store.state.questionData[0].test
+            this.currentQuestion = this.$store.state.questionData[
+                questionIndex
+            ];
+            this.article = this.$store.state.questionData[
+                questionIndex
+            ].article;
+            if (this.article.length > 20) {
+            }
+            this.initArticle = this.$store.state.questionData[
+                questionIndex
+            ].article;
+            this.want = this.$store.state.questionData[questionIndex].want;
+            this.test = this.$store.state.questionData[questionIndex].test;
         }, 0);
     }
+    private testCode() {
+        const regexp: RegExp = new RegExp(this.input, this.inputFlags);
+        if (regexp.exec(this.test)) {
+            this.nextQuestion();
+        } else {
+            alert("don't work");
+        }
+    }
+    private nextQuestion() {
+        alert("nb");
+        this.pass = true;
+        setTimeout(() => {
+            this.pass = false;
+            this.questionIndex++;
+            this.initQuestionData(this.questionIndex++);
+        }, 1000);
+    }
     mounted() {
-        this.initQuestionData();
+        this.initQuestionData(this.questionIndex);
     }
 }
 </script>
@@ -196,6 +229,9 @@ export default class Checkpoint extends Vue {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.smallSize {
+    font-size: 16px;
 }
 .challenge {
     height: 90vh;
@@ -216,6 +252,7 @@ export default class Checkpoint extends Vue {
         grid-template-columns: auto;
         grid-template-rows: 60vh 20vh 10vh;
         grid-template-areas: "article" "input" "footer";
+        padding: 40px;
         .article {
             grid-area: article;
             width: 100%;
@@ -267,7 +304,7 @@ export default class Checkpoint extends Vue {
         display: grid;
         grid-template-columns: auto;
         grid-template-rows: 6vh 24vh 28vh 22vh 10vh;
-        grid-template-areas: "logo" " level " "want" "flags" "s";
+        grid-template-areas: "logo" " level " "want" "flags" "test";
         .logo {
             .orange {
                 color: #ff8008;
@@ -341,6 +378,23 @@ export default class Checkpoint extends Vue {
                 color: #ff8008;
                 .flex;
             }
+            .flex;
+        }
+        .test {
+            button {
+                background: #333;
+                border: none;
+                width: 120px;
+                height: 40px;
+                color: #ff8008;
+                font-weight: bold;
+                font-size: 18px;
+            }
+            svg {
+                font-size: 35px;
+                fill: #ff8008;
+            }
+            grid-area: test;
             .flex;
         }
     }
